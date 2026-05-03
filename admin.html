@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERU Admin - Manage Products</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #0f3460;
+            --accent: #e94560;
+            --light: #f0f0f0;
+            --text: #1a1a2e;
+            --border: #e0e0e0;
+            --success: #25d366;
+            --warning: #ffa500;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f0f0 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .admin-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Layout */
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group small {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 0.2rem;
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .specs-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .spec-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .spec-row input {
+            flex: 1;
+        }
+
+        .spec-row button {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 0.7rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-add-spec {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .btn-add-spec:hover {
+            background: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #ff6b9d);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #1ece73);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--secondary);
+        }
+
+        .btn-danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Product List */
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .product-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .product-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: linear-gradient(135deg, #f5f7fa, #f0f0f0);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .product-item-info {
+            flex: 1;
+        }
+
+        .product-item-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .product-item-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .product-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+
+        /* Export Section */
+        .export-area {
+            grid-column: 1 / -1;
+        }
+
+        .export-box {
+            background: #1a1a2e;
+            color: #00ff88;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 1rem;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .instructions {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border: 2px solid #ffe066;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.2rem;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions code {
+            background: rgba(0,0,0,0.05);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .instructions strong {
+            color: var(--accent);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Footer */
+        .admin-footer {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .admin-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="admin-header-inner">
+            <div>
+                <h1>VERU Admin Panel</h1>
+                <p>Add, edit, and manage your product catalog</p>
+            </div>
+            <span class="badge">HIDDEN PAGE</span>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <!-- Add Product Form -->
+        <div class="card">
+            <h2>➕ Add New Product</h2>
+            <form id="addProductForm" onsubmit="return false;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="prodName" placeholder="e.g. 5.5 KW VFD Drive" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price *</label>
+                        <input type="text" id="prodPrice" placeholder="e.g. ₹12,500" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="prodCategory" required>
+                            <option value="vfd">VFD Drive</option>
+                            <option value="smps">SMPS</option>
+                            <option value="plc">PLC</option>
+                            <option value="other">Accessory / Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Note</label>
+                        <input type="text" id="prodPriceNote" placeholder="e.g. Bulk discount available">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <input type="text" id="prodImage" placeholder="images/your-photo.jpg">
+                    <small>Leave empty to use default icon. Put image in "images/" folder first, then type the path here.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Icon (if no image)</label>
+                    <select id="prodIcon">
+                        <option value="⚙️">⚙️ Gear (VFD/Industrial)</option>
+                        <option value="🔌">🔌 Plug (Power/SMPS)</option>
+                        <option value="💻">💻 Computer (PLC/Control)</option>
+                        <option value="🔧">🔧 Wrench (Tools/Accessories)</option>
+                        <option value="⚡">⚡ Lightning (Power)</option>
+                        <option value="📟">📟 Electronics</option>
+                        <option value="🏭">🏭 Factory</option>
+                        <option value="📦">📦 Package</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Badge (Optional)</label>
+                    <input type="text" id="prodBadge" placeholder="e.g. New, Popular, Sale">
+                    <small>Leave empty for no badge</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Specifications (one per line)</label>
+                    <div class="specs-inputs" id="specsContainer">
+                        <div class="spec-row">
+                            <input type="text" class="spec-input" placeholder="e.g. 5.5 KW Power">
+                        </div>
+                        <div class="spec-row">
+                            <input type="text" class="spec-input" placeholder="e.g. 3-Phase Input">
+                        </div>
+                        <div class="spec-row">
+                            <input type="text" class="spec-input" placeholder="e.g. 0-50 Hz Output">
+                        </div>
+                        <div class="spec-row">
+                            <input type="text" class="spec-input" placeholder="e.g. Industrial Grade">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add-spec" onclick="addSpecField()">+ Add More Spec</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="addProduct()">
+                    🚀 Add Product
+                </button>
+            </form>
+        </div>
+
+        <!-- Product List -->
+        <div class="card">
+            <h2>📦 Current Products (<span id="productCount">0</span>)</h2>
+            <div class="product-list" id="productList">
+                <!-- Products loaded here -->
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
+                <button class="btn btn-danger btn-sm" onclick="clearAllProducts()" style="width: 100%;">
+                    🗑️ Delete All Products
+                </button>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>📋 How This Admin Panel Works</h3>
+            <ol>
+                <li><strong>Add products here</strong> using the form on the left. They are saved in your browser temporarily.</li>
+                <li><strong>Review your product list</strong> on the right. You can delete individual products.</li>
+                <li><strong>Click "Generate & Copy Code"</strong> below to get your updated <code>products.js</code> file content.</li>
+                <li><strong>Paste the copied code</strong> into your <code>products.js</code> file, replacing everything.</li>
+                <li><strong>Upload both files</strong> (<code>index.html</code> + <code>products.js</code>) to your hosting. Done!</li>
+            </ol>
+            <p style="margin-top: 1rem; color: #888; font-size: 0.85rem;">
+                <strong>Note:</strong> This admin page is "hidden" because it's not linked from your main website. 
+                Only people who know the URL (e.g. <code>yourwebsite.com/admin.html</code>) can access it.
+                However, it has no password — if you need security, rename the file to something hard to guess like <code>veru-admin-8472.html</code>.
+            </p>
+        </div>
+
+        <!-- Export Section -->
+        <div class="card export-area">
+            <h2>📤 Export Updated Products.js</h2>
+            <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                Click the button below to generate your new <code>products.js</code> file. Then copy it and replace your current file.
+            </p>
+            <div class="export-actions">
+                <button class="btn btn-success" onclick="generateAndCopy()">
+                    📋 Generate & Copy Code
+                </button>
+                <button class="btn btn-secondary" onclick="downloadProductsJs()">
+                    💾 Download products.js
+                </button>
+                <button class="btn btn-primary" onclick="previewWebsite()">
+                    🌐 Preview Website
+                </button>
+            </div>
+            <div class="export-box" id="exportBox" style="display: none;">
+                <!-- Generated code appears here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="admin-footer">
+        <p>🔒 This page is not linked from the main website. Keep the URL secret.</p>
+        <p style="margin-top: 0.5rem;"><a href="index.html">← Back to Main Website</a></p>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Notification</div>
+
+    <!-- Load existing products -->
+    <script src="products.js"></script>
+
+    <script>
+        // ============================================================
+        // ADMIN PANEL LOGIC
+        // ============================================================
+        // This page lets you manage products through a form.
+        // Products are held in memory and exported as code you paste
+        // back into products.js
+        // ============================================================
+
+        let adminProducts = [];
+
+        // Load products from the imported PRODUCTS array
+        function loadProducts() {
+            if (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) {
+                adminProducts = JSON.parse(JSON.stringify(PRODUCTS));
+            }
+            renderProductList();
+        }
+
+        // Render the product list
+        function renderProductList() {
+            const list = document.getElementById('productList');
+            const count = document.getElementById('productCount');
+            count.textContent = adminProducts.length;
+
+            if (adminProducts.length === 0) {
+                list.innerHTML = '<div class="empty-state">No products yet. Add your first one!</div>';
+                return;
+            }
+
+            list.innerHTML = adminProducts.map((p, index) => `
+                <div class="product-item">
+                    <div class="product-item-info">
+                        <div class="product-item-name">${p.name}</div>
+                        <div class="product-item-meta">
+                            ${p.categoryLabel} • ${p.price} • ${p.specs.length} specs
+                        </div>
+                    </div>
+                    <div class="product-item-actions">
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add spec field
+        function addSpecField() {
+            const container = document.getElementById('specsContainer');
+            const div = document.createElement('div');
+            div.className = 'spec-row';
+            div.innerHTML = `
+                <input type="text" class="spec-input" placeholder="e.g. Another spec">
+                <button type="button" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Add product
+        function addProduct() {
+            const name = document.getElementById('prodName').value.trim();
+            const price = document.getElementById('prodPrice').value.trim();
+            const category = document.getElementById('prodCategory').value;
+            const priceNote = document.getElementById('prodPriceNote').value.trim();
+            const image = document.getElementById('prodImage').value.trim();
+            const icon = document.getElementById('prodIcon').value;
+            const badge = document.getElementById('prodBadge').value.trim();
+
+            const specInputs = document.querySelectorAll('.spec-input');
+            const specs = Array.from(specInputs)
+                .map(input => input.value.trim())
+                .filter(s => s !== '');
+
+            if (!name || !price || specs.length === 0) {
+                showToast('Please fill name, price, and at least one spec', 'error');
+                return;
+            }
+
+            const categoryLabels = {
+                vfd: 'VFD Drive',
+                smps: 'SMPS',
+                plc: 'PLC',
+                other: 'Accessory'
+            };
+
+            const newProduct = {
+               id: adminProducts.length ? adminProducts[adminProducts.length - 1].id + 1 : 1,
+                category: category,
+                categoryLabel: categoryLabels[category],
+                name: name,
+                specs: specs,
+                price: price,
+                priceNote: priceNote || 'Contact for bulk pricing',
+                image: image || null,
+                icon: icon,
+                badge: badge || null
+            };
+
+            adminProducts.push(newProduct);
+            renderProductList();
+            showToast('Product added successfully!');
+
+            // Reset form
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodPriceNote').value = '';
+            document.getElementById('prodImage').value = '';
+            document.getElementById('prodBadge').value = '';
+            document.getElementById('prodCategory').value = 'vfd';
+            document.getElementById('prodIcon').value = '⚙️';
+
+            // Reset specs to 4 empty fields
+            const container = document.getElementById('specsContainer');
+            container.innerHTML = `
+                <div class="spec-row"><input type="text" class="spec-input" placeholder="e.g. 5.5 KW Power"></div>
+                <div class="spec-row"><input type="text" class="spec-input" placeholder="e.g. 3-Phase Input"></div>
+                <div class="spec-row"><input type="text" class="spec-input" placeholder="e.g. 0-50 Hz Output"></div>
+                <div class="spec-row"><input type="text" class="spec-input" placeholder="e.g. Industrial Grade"></div>
+            `;
+        }
+
+        // Delete product
+        function deleteProduct(index) {
+            if (confirm('Delete this product?')) {
+                adminProducts.splice(index, 1);
+                renderProductList();
+                showToast('Product deleted');
+            }
+        }
+
+        // Clear all
+        function clearAllProducts() {
+            if (confirm('Delete ALL products? This cannot be undone!')) {
+                adminProducts = [];
+                renderProductList();
+                showToast('All products cleared');
+            }
+        }
+
+        // Generate products.js content
+        function generateProductsJs() {
+            const productsJson = JSON.stringify(adminProducts, null, 4);
+
+            return `// ============================================================
+// VERU PRODUCTS DATA
+// ============================================================
+// This file contains all your products. Edit with care!
+// Use the admin.html page to generate this file easily.
+// ============================================================
+
+const PRODUCTS = ${productsJson};
+`;
+        }
+
+        // Generate and copy
+        function generateAndCopy() {
+            const code = generateProductsJs();
+            const exportBox = document.getElementById('exportBox');
+            exportBox.textContent = code;
+            exportBox.style.display = 'block';
+
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Code copied to clipboard! Paste into products.js');
+            }).catch(() => {
+                showToast('Code generated! Copy manually from the box below.');
+            });
+        }
+
+        // Download products.js
+        function downloadProductsJs() {
+            const code = generateProductsJs();
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('products.js downloaded!');
+        }
+
+        // Preview website
+        function previewWebsite() {
+            // Save current products to localStorage for preview
+            localStorage.setItem('veru_preview_products', JSON.stringify(adminProducts));
+            window.open('index.html?preview=true', '_blank');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#ff4444' : 'var(--primary)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize
+        loadProducts();
+    </script>
+</body>
+</html>
